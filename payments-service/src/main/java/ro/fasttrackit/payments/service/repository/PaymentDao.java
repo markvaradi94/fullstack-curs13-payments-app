@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.Optional.ofNullable;
+import static ro.fasttrackit.curs13homework.enums.PaymentStatus.of;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,8 +35,10 @@ public class PaymentDao {
 
         ofNullable(filters.getId())
                 .ifPresent(id -> criteria.add(Criteria.where("id").is(id)));
+        ofNullable(filters.getInvoiceId())
+                .ifPresent(invoiceId -> criteria.add(Criteria.where("invoiceId").is(invoiceId)));
         ofNullable(filters.getStatus())
-                .ifPresent(status -> criteria.add(Criteria.where("status").is(status)));
+                .ifPresent(status -> criteria.add(Criteria.where("status").is(of(status))));
         ofNullable(filters.getAmountPayable())
                 .ifPresent(amountPayable -> criteria.add(Criteria.where("amountPayable").is(amountPayable)));
         return criteria;

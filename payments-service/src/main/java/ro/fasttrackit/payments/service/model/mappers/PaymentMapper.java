@@ -11,6 +11,7 @@ public class PaymentMapper implements ModelMapper<Payment, PaymentEntity> {
     public Payment toApi(PaymentEntity source) {
         return Payment.builder()
                 .id(source.getId())
+                .invoiceId(source.getInvoiceId())
                 .status(source.getStatus())
                 .amountPayable(source.getAmountPayable())
                 .build();
@@ -20,6 +21,7 @@ public class PaymentMapper implements ModelMapper<Payment, PaymentEntity> {
     public PaymentEntity toEntity(Payment source) {
         return PaymentEntity.builder()
                 .id(source.getId())
+                .invoiceId(source.getInvoiceId())
                 .status(source.getStatus())
                 .amountPayable(source.getAmountPayable())
                 .build();

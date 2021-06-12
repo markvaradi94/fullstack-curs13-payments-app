@@ -8,13 +8,13 @@ import ro.fasttrackit.curs13homework.enums.PaymentStatus;
 
 @Data
 @Builder
-@Document(collection = "payments")
-
-public class PaymentEntity {
+@Document(collection = "payment_entries")
+public class PaymentEntryEntity {
     @Id
     private String id;
 
-    private String invoiceId;
     private PaymentStatus status;
     private Double amountPayable;
+    private String sender;
+    private String receiver;
 }

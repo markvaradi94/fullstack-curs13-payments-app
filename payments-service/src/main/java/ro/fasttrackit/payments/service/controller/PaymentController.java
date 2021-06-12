@@ -1,5 +1,6 @@
 package ro.fasttrackit.payments.service.controller;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import dto.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,16 @@ public class PaymentController {
         return service.findPayment(paymentId)
                 .map(mapper::toApi)
                 .orElseThrow(() -> new ResourceNotFoundException("Could not find payment with id: " + paymentId));
+    }
+
+    @PutMapping("{paymentId}")
+    Payment updatePayment(@PathVariable String paymentId, @RequestBody Payment updatedPayment) {
+        return mapper.toApi(service.updatePayment(paymentId, mapper.toEntity(updatedPayment)));
+    }
+
+    @PatchMapping("{paymentId}")
+    Payment patchPayment(@PathVariable String paymentId, @RequestBody JsonPatch paymentPatch) {
+        return mapper.toApi(service.patchPayment(paymentId, paymentPatch));
     }
 
     @PostMapping

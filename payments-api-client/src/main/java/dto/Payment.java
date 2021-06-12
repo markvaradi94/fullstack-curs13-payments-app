@@ -11,6 +11,7 @@ import ro.fasttrackit.curs13homework.enums.PaymentStatus;
 @JsonDeserialize(builder = Payment.PaymentBuilder.class)
 public class Payment {
     String id;
+    String invoiceId;
     PaymentStatus status;
     Double amountPayable;
 

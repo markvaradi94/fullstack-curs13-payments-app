@@ -5,7 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 
 @EnableEurekaClient
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "ro.fasttrackit.curs13homework.invoice.client",
+        "ro.fasttrackit.payments"
+})
 public class PaymentsServiceApplication {
 
     public static void main(String[] args) {

@@ -1,4 +1,4 @@
-package client;
+package ro.fasttrackit.curs13homework.payments.client;
 
 import dto.Payment;
 import lombok.extern.slf4j.Slf4j;
@@ -22,15 +22,12 @@ import static org.springframework.http.HttpMethod.GET;
 @Slf4j
 @Component
 public class PaymentApiClient {
-    private final String baseUrl;
+    private final String hostname;
     private final RestTemplate restTemplate;
 
-    public PaymentApiClient(
-            @Value("${payments.service.location:NOT_DEFINED}") String baseUrl,
-            RestTemplate restTemplate
-    ) {
-        this.baseUrl = baseUrl;
-        this.restTemplate = restTemplate;
+    public PaymentApiClient(@Value("${payments-service-host:NOT_DEFINED}") String hostname) {
+        this.hostname = hostname;
+        this.restTemplate = new RestTemplate();
     }
 
     public List<Payment> getAllPayments(PaymentFilters filters) {
@@ -45,7 +42,7 @@ public class PaymentApiClient {
     }
 
     public Optional<Payment> getPayment(String paymentId) {
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+        String url = UriComponentsBuilder.fromHttpUrl(hostname)
                 .path("/payments/")
                 .path(paymentId)
                 .toUriString();
@@ -57,14 +54,14 @@ public class PaymentApiClient {
     }
 
     public Payment addPayment(Payment payment) {
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+        String url = UriComponentsBuilder.fromHttpUrl(hostname)
                 .path("/payments")
                 .toUriString();
         return restTemplate.postForObject(url, payment, Payment.class);
     }
 
     public Payment deletePayment(String paymentId) {
-        String url = UriComponentsBuilder.fromHttpUrl(baseUrl)
+        String url = UriComponentsBuilder.fromHttpUrl(hostname)
                 .path("/payments/")
                 .path(paymentId)
                 .toUriString();
@@ -77,9 +74,12 @@ public class PaymentApiClient {
     }
 
     private String buildQueriedUrl(PaymentFilters filters) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(hostname)
+                .path("/payments/");
         ofNullable(filters.getId())
                 .ifPresent(id -> builder.queryParam("id", id));
+        ofNullable(filters.getInvoiceId())
+                .ifPresent(invoiceId -> builder.queryParam("invoiceId", invoiceId));
         ofNullable(filters.getStatus())
                 .ifPresent(status -> builder.queryParam("status", status));
         ofNullable(filters.getAmountPayable())

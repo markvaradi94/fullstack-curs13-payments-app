@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ro.fasttrackit.curs13homework.enums.PaymentStatus;
 import ro.fasttrackit.curs13homework.exceptions.ResourceNotFoundException;
 import ro.fasttrackit.curs13homework.filters.PaymentFilters;
 import ro.fasttrackit.payments.service.model.entity.PaymentEntity;
@@ -17,14 +18,16 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.unmodifiableList;
+import static ro.fasttrackit.curs13homework.enums.PaymentStatus.DONE;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
     private final PaymentDao dao;
-    private final PaymentRepository repository;
     private final ObjectMapper mapper;
+    private final PaymentRepository repository;
+    private final PaymentNotificationsService notificationsService;
 
     public List<PaymentEntity> findAllPayments(PaymentFilters filters) {
         return unmodifiableList(dao.findAllPayments(filters));
@@ -45,12 +48,24 @@ public class PaymentService {
         return paymentToDelete;
     }
 
+    public PaymentEntity updatePayment(String paymentId, PaymentEntity newPayment) {
+        PaymentEntity paymentToUpdate = getOrThrow(paymentId);
+        paymentToUpdate.setStatus(newPayment.getStatus());
+        if (paymentToUpdate.getStatus() == DONE) {
+            notificationsService.notifyPaymentCompleted(paymentToUpdate);
+        }
+        return repository.save(paymentToUpdate);
+    }
+
     @SneakyThrows
     public PaymentEntity patchPayment(String paymentId, JsonPatch patch) {
         PaymentEntity dbPayment = getOrThrow(paymentId);
         JsonNode patchedPaymentJson = patch.apply(mapper.valueToTree(dbPayment));
         PaymentEntity patchedPayment = mapper.treeToValue(patchedPaymentJson, PaymentEntity.class);
         copyPayment(patchedPayment, dbPayment);
+        if (dbPayment.getStatus().equals(DONE)) {
+            notificationsService.notifyPaymentCompleted(dbPayment);
+        }
         return repository.save(dbPayment);
     }
 
